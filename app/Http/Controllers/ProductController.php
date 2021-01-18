@@ -14,7 +14,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $product = Product::latest()->paginate(4);
+        return view('product.index', compact('product'));
     }
 
     /**
@@ -24,7 +25,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        //
+        return view('product.create');
     }
 
     /**
@@ -35,7 +36,17 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // * to check the information that the user has entered.
+        $request->validate([
+            'name'=>'required',
+            'price'=>'required',
+        ]);
+
+        // * will take everything the user entered and add it to the table in the db.
+        $product = Product::create($request->all());
+        // * redirect the user to another page after adding the information and showing him a mess.
+        return redirect()->route('product.index')->with('success', 'product added successfully');
+
     }
 
     /**
@@ -46,7 +57,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        return view('product.show', compact('product'));
     }
 
     /**
@@ -57,7 +68,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        //
+        return view('product.edit', compact('product'));
     }
 
     /**
@@ -69,7 +80,17 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        // * to check the information that the user has entered.
+        $request->validate([
+            'name'=>'required',
+            'price'=>'required',
+        ]);
+
+        // * will take everything the user entered and add it to the table in the db.
+        $product = Product::update($request->all());
+        // * redirect the user to another page after adding the information and showing him a mess.
+        return redirect()->route('product.index')->with('success', 'product updated successfully');
+
     }
 
     /**
@@ -80,6 +101,9 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        // * delete the product
+        $product->delete();
+        // * redirect to index page
+        return redirect()->route('product.index')->with('success', 'product deleted successfully');
     }
 }
