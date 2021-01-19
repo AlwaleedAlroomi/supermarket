@@ -14,8 +14,14 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $product = Product::latest()->paginate(4);
-        return view('product.index', compact('product'));
+        $products = Product::latest()->paginate(4);
+        return view('product.index', compact('products'));
+    }
+
+    public function trashedProducts()
+    {
+        $products = Product::onlyTrashed()->latest()->paginate(4);
+        return view('product.trash', compact('products'));
     }
 
     /**
@@ -45,7 +51,7 @@ class ProductController extends Controller
         // * will take everything the user entered and add it to the table in the db.
         $product = Product::create($request->all());
         // * redirect the user to another page after adding the information and showing him a mess.
-        return redirect()->route('product.index')->with('success', 'product added successfully');
+        return redirect()->route('products.index')->with('success', 'product added successfully');
 
     }
 
@@ -87,9 +93,9 @@ class ProductController extends Controller
         ]);
 
         // * will take everything the user entered and add it to the table in the db.
-        $product = Product::update($request->all());
+        $product->update($request->all());
         // * redirect the user to another page after adding the information and showing him a mess.
-        return redirect()->route('product.index')->with('success', 'product updated successfully');
+        return redirect()->route('products.index')->with('success', 'product updated successfully');
 
     }
 
@@ -104,6 +110,30 @@ class ProductController extends Controller
         // * delete the product
         $product->delete();
         // * redirect to index page
-        return redirect()->route('product.index')->with('success', 'product deleted successfully');
+        return redirect()->route('products.index')->with('success', 'product deleted successfully');
+    }
+
+    public function softDelete($id)
+    {
+        // * delete the product
+        $product = Product::find($id)->delete();
+        // * redirect to index page
+        return redirect()->route('products.index')->with('success', 'product deleted successfully');
+    }
+
+    public function deleteForEver($id)
+    {
+        // * delete the product
+        $product = Product::onlyTrashed()->where('id', $id)->forceDelete();
+        // * redirect to index page
+        return redirect()->route('product/trash')->with('success', 'product deleted successfully');
+    }
+
+    public function backFromSoftDelete($id)
+    {
+        // * delete the product
+        $product = Product::onlyTrashed()->where('id', $id)->first()->restore();
+        // * redirect to index page
+        return redirect()->route('products.index')->with('success', 'product deleted successfully');
     }
 }
